@@ -1,15 +1,13 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify
 import numpy as np
 import tempfile
 import os
 import base64
-from werkzeug.utils import secure_filename
 from flask_cors import CORS
-sys.path.append(os.path.abspath('/C:\Users\archi\ai stuff\assistant'))
 
-
+# Import your voice assistant components
 from voice import VoiceProcessingSystem
-from response import ResponseGenerator, Query, Response
+from response import ResponseGenerator, Query
 from sym import SystemManager
 
 app = Flask(__name__)
