@@ -8,14 +8,13 @@
   ],
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/images/*.{png,jpg,gif}", "/css/*", "/js/*"]
+    "exclude": ["/images/*.{png,jpg,gif}", "/css/*", "/js/*", "/*.ico"]
   },
-  "platform": {
-    "apiRuntime": "node:16"
+  "mimeTypes": {
+    ".json": "text/json"
   },
-  "buildProperties": {
-    "outputLocation": "out",
-    "appLocation": ".",
-    "appBuildCommand": "npm run build && npm run export"
+  "globalHeaders": {
+    "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:;",
+    "X-Content-Type-Options": "nosniff"
   }
 }

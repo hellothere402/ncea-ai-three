@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-const useVoiceRecording = ({ maxDuration = 30 } = {}) => {
+const useVoiceRecording = ({ maxDuration = 60 } = {}) => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [audioBlob, setAudioBlob] = useState(null);
@@ -9,60 +9,68 @@ const useVoiceRecording = ({ maxDuration = 30 } = {}) => {
   const audioChunksRef = useRef([]);
   const timerRef = useRef(null);
   
-  // Clean up on unmount
+  // Clean up when unmounting
   useEffect(() => {
     return () => {
-      stopRecording();
       if (timerRef.current) {
         clearInterval(timerRef.current);
+      }
+      
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop();
       }
     };
   }, []);
   
-  const startRecording = useCallback(async () => {
+  const startRecording = async () => {
     try {
       // Reset state
-      setAudioBlob(null);
       audioChunksRef.current = [];
+      setAudioBlob(null);
       setRecordingTime(0);
       
       // Request microphone access
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
       // Create media recorder
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
       
-      // Set up event handlers
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        audioChunksRef.current.push(event.data);
+      // Set up event listeners
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
       };
       
-      mediaRecorderRef.current.onstop = () => {
+      mediaRecorder.onstop = () => {
+        // Create a blob from all audio chunks
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
         setAudioBlob(audioBlob);
-        setIsRecording(false);
         
-        // Stop the timer
+        // Stop all tracks in the stream to release the microphone
+        stream.getTracks().forEach(track => track.stop());
+        
+        // Clear the timer
         if (timerRef.current) {
           clearInterval(timerRef.current);
           timerRef.current = null;
         }
         
-        // Stop all tracks in the stream
-        stream.getTracks().forEach(track => track.stop());
+        setIsRecording(false);
       };
       
       // Start recording
-      mediaRecorderRef.current.start();
+      mediaRecorder.start();
       setIsRecording(true);
       
-      // Start timer
+      // Start the timer
       timerRef.current = setInterval(() => {
-        setRecordingTime(prevTime => {
-          const newTime = prevTime + 1;
+        setRecordingTime(prev => {
+          const newTime = prev + 1;
           // Stop recording if max duration is reached
-          if (newTime >= maxDuration) {
-            stopRecording();
+          if (newTime >= maxDuration && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
           }
           return newTime;
         });
@@ -72,19 +80,13 @@ const useVoiceRecording = ({ maxDuration = 30 } = {}) => {
       console.error('Error starting recording:', error);
       setIsRecording(false);
     }
-  }, [maxDuration]);
+  };
   
-  const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && isRecording) {
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       mediaRecorderRef.current.stop();
-      // Note: onstop handler will update state
     }
-    
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-  }, [isRecording]);
+  };
   
   return {
     isRecording,
