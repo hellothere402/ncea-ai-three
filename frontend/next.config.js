@@ -1,14 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  eslint: {
-    // Disable eslint during build for now to avoid errors
-    ignoreDuringBuilds: true
-  },
-  // Allow page-level CSS Modules
+  swcMinify: true,
+  output: 'export',  // This is essential for static exports
   images: {
-    disableStaticImages: true
-  }
+    unoptimized: true,  // Required for static export
+  },
+  // If you're deploying to a subdirectory, uncomment the following:
+  // basePath: '',
+  // assetPrefix: '',
+  trailingSlash: false,
 }
 
 module.exports = nextConfig
