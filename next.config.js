@@ -1,21 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
-  output: 'export',  // This is essential for static exports
-  // Disable image optimization since it requires a server
+  output: 'export',
   images: {
     unoptimized: true,
   },
-  // Set a proper base path if you're not deploying to the root domain
-  // basePath: '',
-  // If you're deploying to a subdirectory
-  // assetPrefix: '',
-  // Disable server components for static site generation
-  experimental: {
-    appDir: true,
-  },
-  // Ensure trailing slashes are not used (Azure SWA prefers this)
   trailingSlash: false,
 }
 
