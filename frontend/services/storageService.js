@@ -2,7 +2,6 @@ const SETTINGS_KEY = 'voice_assistant_settings';
 
 export const saveSettings = (settings) => {
   try {
-    // Only attempt to save if we're in a browser environment
     if (typeof window !== 'undefined') {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
       return true;
@@ -16,7 +15,6 @@ export const saveSettings = (settings) => {
 
 export const loadSettings = () => {
   try {
-    // Only attempt to load if we're in a browser environment
     if (typeof window !== 'undefined') {
       const settingsJson = localStorage.getItem(SETTINGS_KEY);
       return settingsJson ? JSON.parse(settingsJson) : null;
@@ -30,7 +28,6 @@ export const loadSettings = () => {
 
 export const clearSettings = () => {
   try {
-    // Only attempt to clear if we're in a browser environment
     if (typeof window !== 'undefined') {
       localStorage.removeItem(SETTINGS_KEY);
       return true;

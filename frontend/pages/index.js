@@ -1,8 +1,14 @@
 import React from 'react';
-import '../styles/voiceAssistant.css';
-import VoiceAssistant from '../components/VoiceAssistant';
+import styles from '../styles/Home.module.css';
+import dynamic from 'next/dynamic';
 
-export default function App() {
+
+const VoiceAssistant = dynamic(
+  () => import('../components/VoiceAssistant'),
+  { ssr: false }
+);
+
+export default function Home() {
   return (
     <div className="app-container">
       <header className="app-header">
