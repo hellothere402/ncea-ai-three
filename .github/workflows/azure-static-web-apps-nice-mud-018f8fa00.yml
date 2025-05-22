@@ -31,7 +31,6 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "/frontend" # Specify your frontend directory
-          api_location: "/backend" # Your API directory
           output_location: "" # Let Azure build handle the output location
 
   close_pull_request_job:
