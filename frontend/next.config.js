@@ -1,17 +1,21 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'export',  // This is essential for static exports
-  // Disable image optimization since it requires a server
-  images: {
-    unoptimized: true,
+  
+  // IMPORTANT: Do NOT include any of these:
+  // output: 'export',
+  // trailingSlash: true,
+  // distDir: 'out',
+  
+  // For Azure Static Web Apps with API support
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: '/api/:path*',
+      },
+    ]
   },
-  // Set a proper base path if you're not deploying to the root domain
-  // basePath: '',
-  // If you're deploying to a subdirectory
-  // assetPrefix: '',
-  // Ensure trailing slashes are not used (Azure SWA prefers this)
-  trailingSlash: false,
 }
 
 module.exports = nextConfig
