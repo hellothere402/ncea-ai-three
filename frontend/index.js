@@ -2,33 +2,31 @@ import React from 'react';
 
 export default function Home() {
   return (
-    <div className={styles.container}>
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <span className={styles.highlight}>Voice Assistant</span>
+    <div className="container mx-auto p-8">
+      <main>
+        <h1 className="text-4xl font-bold mb-4">
+          Welcome to <span className="text-blue-600">Voice Assistant</span>
         </h1>
 
-        <p className={styles.description}>
+        <p className="text-lg mb-8">
           Your AI-powered voice assistant is ready
         </p>
 
-        <div className={styles.grid}>
-          <a href="/assistant" className={styles.card}>
-            <h2>Launch Assistant &rarr;</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <a href="/assistant" className="border p-4 rounded hover:bg-gray-50">
+            <h2 className="text-xl font-semibold">Launch Assistant &rarr;</h2>
             <p>Start using your voice assistant now</p>
           </a>
 
-          <a href="/about" className={styles.card}>
-            <h2>About &rarr;</h2>
+          <a href="/about" className="border p-4 rounded hover:bg-gray-50">
+            <h2 className="text-xl font-semibold">About &rarr;</h2>
             <p>Learn about the voice assistant features</p>
           </a>
         </div>
       </main>
 
-      <footer className={styles.footer}>
-        <p>
-          Powered by Next.js and Azure
-        </p>
+      <footer className="mt-16 text-center text-gray-600">
+        <p>Powered by Next.js and Azure</p>
       </footer>
     </div>
   );
