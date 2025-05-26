@@ -1,15 +1,20 @@
 {
+  "platform": {
+    "apiRuntime": "node:18"
+  },
   "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": ["/images/*.{png,jpg,gif}", "/css/*"]
+    "rewrite": "/api/server"
   },
-  "responseOverrides": {
-    "404": {
-      "rewrite": "/index.html",
-      "statusCode": 200
+  "routes": [
+    {
+      "route": "/_next/static/*",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "route": "/api/*",
+      "allowedRoles": ["anonymous"]
     }
-  },
-  "globalHeaders": {
-    "Cache-Control": "no-cache"
-  }
+  ]
 }
