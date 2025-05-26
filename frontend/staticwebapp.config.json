@@ -1,7 +1,4 @@
 {
-  "globalHeaders": {
-    "Content-Security-Policy": "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; style-src 'self' 'unsafe-inline' data:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https:; object-src 'none'; base-uri 'self';"
-  },
   "routes": [
     {
       "route": "/_next/static/*",
@@ -12,18 +9,9 @@
     {
       "route": "/_next/*",
       "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/*",
-      "allowedRoles": ["anonymous"]
     }
   ],
   "navigationFallback": {
     "rewrite": "/index.html"
-  },
-  "mimeTypes": {
-    ".js": "text/javascript",
-    ".css": "text/css",
-    ".json": "application/json"
   }
 }
