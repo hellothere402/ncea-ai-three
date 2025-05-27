@@ -31,10 +31,8 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "/frontend" # Your Next.js frontend directory
-          api_location: "/backend" # Your backend API directory
           output_location: "" # Empty for Next.js (important!)
           app_build_command: "npm run build"
-          api_build_command: "npm install"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

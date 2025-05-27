@@ -12,10 +12,6 @@
     {
       "route": "/_next/*",
       "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/*",
-      "allowedRoles": ["anonymous"]
     }
   ]
 }
