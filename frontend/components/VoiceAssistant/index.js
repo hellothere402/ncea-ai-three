@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import ChatArea from './ChatArea';
 import InputArea from './InputArea';
 import Settings from './Settings';
-import { processAudioData, generateTextResponse } from '../../services-disabled/api';
-import { saveSettings, loadSettings } from '../../services-disabled/storageService';
+import { processAudioData, generateTextResponse } from '../../services/api';
+import { saveSettings, loadSettings } from '../../services/storageService';
 
 const VoiceAssistant = () => {
   const [messages, setMessages] = useState([]);

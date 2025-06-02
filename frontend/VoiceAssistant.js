@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import dynamic from 'next/dynamic';
 
-// Dynamically import components with browser-specific APIs
-const ChatArea = dynamic(() => import('./VoiceAssistant/ChatArea'), { ssr: false });
-const InputArea = dynamic(() => import('./VoiceAssistant/InputArea'), { ssr: false });
-const Settings = dynamic(() => import('./VoiceAssistant/Settings'), { ssr: false });
+// Import child components (they're in the same directory now)
+import ChatArea from './ChatArea';
+import InputArea from './InputArea';
+import Settings from './Settings';
 
-// Import services
+// Import services with correct paths
 import { processAudioData, generateTextResponse } from '../services/api';
 import { saveSettings, loadSettings } from '../services/storageService';
 
@@ -79,7 +78,7 @@ const VoiceAssistant = () => {
         ...prevMessages,
         {
           role: 'system',
-          content: 'Listening...',
+          content: 'Processing your voice...',
           timestamp: new Date(),
           temporary: true
         }
@@ -88,7 +87,7 @@ const VoiceAssistant = () => {
       // Send audio to backend for processing
       const response = await processAudioData(audioBlob);
       
-      // Remove temporary message and prevent state updates if component unmounted
+      // Remove temporary message
       setMessages(prevMessages => 
         prevMessages.filter(msg => !msg.temporary)
       );
@@ -116,15 +115,25 @@ const VoiceAssistant = () => {
           }
         ]);
         
-        // Play audio response if available
+        // Play audio response if available and browser supports it
         if (response.audio && audioPlayerRef.current) {
-          const audioUrl = `data:audio/mp3;base64,${response.audio}`;
-          audioPlayerRef.current.src = audioUrl;
-          audioPlayerRef.current.play();
+          try {
+            const audioUrl = `data:audio/mp3;base64,${response.audio}`;
+            audioPlayerRef.current.src = audioUrl;
+            await audioPlayerRef.current.play();
+          } catch (audioError) {
+            console.warn('Could not play audio response:', audioError);
+          }
         }
       }
     } catch (error) {
       console.error('Error processing voice input:', error);
+      
+      // Remove any temporary messages first
+      setMessages(prevMessages => 
+        prevMessages.filter(msg => !msg.temporary)
+      );
+      
       setMessages(prevMessages => [
         ...prevMessages,
         {
@@ -176,9 +185,13 @@ const VoiceAssistant = () => {
         
         // Play audio response if available
         if (response.audio && audioPlayerRef.current) {
-          const audioUrl = `data:audio/mp3;base64,${response.audio}`;
-          audioPlayerRef.current.src = audioUrl;
-          audioPlayerRef.current.play();
+          try {
+            const audioUrl = `data:audio/mp3;base64,${response.audio}`;
+            audioPlayerRef.current.src = audioUrl;
+            await audioPlayerRef.current.play();
+          } catch (audioError) {
+            console.warn('Could not play audio response:', audioError);
+          }
         }
       }
     } catch (error) {
@@ -197,7 +210,6 @@ const VoiceAssistant = () => {
     }
   };
 
-  // Rest of component remains the same...
   const handleSettingsUpdate = (newSettings) => {
     setSettings(prevSettings => {
       const updatedSettings = { ...prevSettings, ...newSettings };
@@ -216,7 +228,7 @@ const VoiceAssistant = () => {
       setIsProcessing(true);
       isProcessingRef.current = true;
       
-      // Simulate profile creation (remove API call that would fail)
+      // Simulate profile creation
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       setSettings(prevSettings => {
@@ -233,7 +245,7 @@ const VoiceAssistant = () => {
         ...prevMessages,
         {
           role: 'system',
-          content: `Voice profile created successfully for ${userName || 'User'}`,
+          content: `Voice profile created successfully for ${userName || 'User'}!`,
           timestamp: new Date()
         }
       ]);

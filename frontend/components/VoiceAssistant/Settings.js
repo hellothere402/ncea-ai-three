@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import useVoiceRecording from '../../hooks/useVoiceRecording';
+import React, { useState, useEffect } from 'react';
+import useVoiceRecording from '../hooks/useVoiceRecording';
 
 const Settings = ({ settings, onSave, onClose, onCreateVoiceProfile, isProcessing }) => {
   const [formData, setFormData] = useState({ ...settings });
@@ -30,8 +30,17 @@ const Settings = ({ settings, onSave, onClose, onCreateVoiceProfile, isProcessin
   };
   
   const startProfileRecording = () => {
+    if (!profileUserName.trim()) {
+      alert('Please enter your name first');
+      return;
+    }
+    
     setRecordingForProfile(true);
-    startRecording();
+    startRecording().catch(error => {
+      console.error('Failed to start profile recording:', error);
+      alert('Could not access microphone. Please check your permissions.');
+      setRecordingForProfile(false);
+    });
     
     // Auto-stop after 5 seconds
     setTimeout(() => {
@@ -42,7 +51,7 @@ const Settings = ({ settings, onSave, onClose, onCreateVoiceProfile, isProcessin
   };
   
   // When profile recording is complete
-  React.useEffect(() => {
+  useEffect(() => {
     if (recordingForProfile && !isRecording && audioBlob) {
       onCreateVoiceProfile(audioBlob, profileUserName);
       setRecordingForProfile(false);
@@ -55,8 +64,29 @@ const Settings = ({ settings, onSave, onClose, onCreateVoiceProfile, isProcessin
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
   
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEscapeKey = (event) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+    
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [onClose]);
+  
+  // Handle click outside modal to close
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+  
   return (
-    <div className="settings-modal">
+    <div className="settings-modal" onClick={handleBackdropClick}>
       <div className="settings-content">
         <div className="settings-header">
           <h3>Voice Assistant Settings</h3>
@@ -84,12 +114,12 @@ const Settings = ({ settings, onSave, onClose, onCreateVoiceProfile, isProcessin
                 value={formData.voiceId}
                 onChange={handleChange}
               >
-                <option value="nova">Nova (Female)</option>
-                <option value="alloy">Alloy (Neutral)</option>
-                <option value="echo">Echo (Male)</option>
-                <option value="fable">Fable (Male)</option>
-                <option value="onyx">Onyx (Male)</option>
-                <option value="shimmer">Shimmer (Female)</option>
+                <option value="nova">Nova (Female, Warm)</option>
+                <option value="shimmer">Shimmer (Female, Energetic)</option>
+                <option value="alloy">Alloy (Neutral, Balanced)</option>
+                <option value="echo">Echo (Male, Clear)</option>
+                <option value="fable">Fable (Male, British)</option>
+                <option value="onyx">Onyx (Male, Authoritative)</option>
               </select>
             </div>
             
@@ -113,7 +143,7 @@ const Settings = ({ settings, onSave, onClose, onCreateVoiceProfile, isProcessin
                   checked={formData.saveConversations}
                   onChange={handleChange}
                 />
-                Save conversations
+                Save conversations locally
               </label>
             </div>
           </div>
@@ -134,7 +164,7 @@ const Settings = ({ settings, onSave, onClose, onCreateVoiceProfile, isProcessin
               </div>
             ) : (
               <div className="profile-creation">
-                <p>You don&apos;t have a voice profile yet. Create one to enable voice recognition.</p>
+                <p>Create a voice profile to enable personalized voice recognition (optional).</p>
                 
                 <div className="profile-form">
                   <div className="form-group">
@@ -145,6 +175,7 @@ const Settings = ({ settings, onSave, onClose, onCreateVoiceProfile, isProcessin
                       value={profileUserName}
                       onChange={(e) => setProfileUserName(e.target.value)}
                       placeholder="Enter your name"
+                      disabled={isProcessing}
                     />
                   </div>
                   
@@ -166,7 +197,7 @@ const Settings = ({ settings, onSave, onClose, onCreateVoiceProfile, isProcessin
                       {isProcessing ? (
                         <span>Processing...</span>
                       ) : (
-                        <span>Record Voice Sample (5 seconds)</span>
+                        <span>🎤 Record Voice Sample (5 seconds)</span>
                       )}
                     </button>
                   )}
@@ -186,8 +217,9 @@ const Settings = ({ settings, onSave, onClose, onCreateVoiceProfile, isProcessin
             <button
               type="submit"
               className="save-button"
+              disabled={isProcessing}
             >
-              Save Settings
+              {isProcessing ? 'Saving...' : 'Save Settings'}
             </button>
           </div>
         </form>
@@ -195,5 +227,3 @@ const Settings = ({ settings, onSave, onClose, onCreateVoiceProfile, isProcessin
     </div>
   );
 };
-
-export default Settings;
