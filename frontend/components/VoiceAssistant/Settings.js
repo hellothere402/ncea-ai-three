@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import useVoiceRecording from '../hooks/useVoiceRecording';
+import useVoiceRecording from '../../hooks/useVoiceRecording';
 
 const Settings = ({ settings, onSave, onClose, onCreateVoiceProfile, isProcessing }) => {
   const [formData, setFormData] = useState({ ...settings });
@@ -227,3 +227,5 @@ const Settings = ({ settings, onSave, onClose, onCreateVoiceProfile, isProcessin
     </div>
   );
 };
+
+export default Settings;

@@ -1,13 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-
-// Import child components (they're in the same directory now)
 import ChatArea from './ChatArea';
 import InputArea from './InputArea';
 import Settings from './Settings';
-
-// Import services with correct paths
-import { processAudioData, generateTextResponse } from '../services/api';
-import { saveSettings, loadSettings } from '../services/storageService';
+import { processAudioData, generateTextResponse } from '../../services/api';
+import { saveSettings, loadSettings } from '../../services/storageService';
 
 const VoiceAssistant = () => {
   const [messages, setMessages] = useState([]);

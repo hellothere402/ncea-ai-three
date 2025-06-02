@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import useVoiceRecording from '../hooks/useVoiceRecording';
+import useVoiceRecording from '../../hooks/useVoiceRecording';
 
 const VoiceRecorder = ({ onAudioRecorded, disabled }) => {
   const { 
