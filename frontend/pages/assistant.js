@@ -1,13 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
-import dynamic from 'next/dynamic';
-
-// Dynamically import the VoiceAssistant component to avoid SSR issues
-const VoiceAssistant = dynamic(
-  () => import('../components/VoiceAssistant'),
-  { ssr: false }
-);
+import VoiceAssistant from '../components/VoiceAssistant';
 
 export default function Assistant() {
   return (
