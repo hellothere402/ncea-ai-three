@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base styles */
+/* Your custom styles below */
 * {
   box-sizing: border-box;
   margin: 0;
