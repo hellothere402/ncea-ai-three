@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-// Simple components using only Tailwind
 const VoiceAssistant = () => {
   const [messages, setMessages] = useState([
     {
@@ -12,6 +11,7 @@ const VoiceAssistant = () => {
   const [inputText, setInputText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const messagesEndRef = useRef(null);
 
   // Auto-scroll to bottom when messages update
@@ -37,12 +37,32 @@ const VoiceAssistant = () => {
     setTimeout(() => {
       const aiResponse = {
         role: 'assistant',
-        content: `I received your message: "${inputText}". This is a demo response. The voice features will work when you integrate with your backend.`,
+        content: `I received your message: "${userMessage.content}". This is a demo response. The full voice features will be available when connected to the backend API.`,
         timestamp: new Date()
       };
       setMessages(prev => [...prev, aiResponse]);
       setIsProcessing(false);
     }, 1000);
+  };
+
+  const handleVoiceInput = () => {
+    if (isRecording) {
+      setIsRecording(false);
+      // Stop recording logic here
+      setMessages(prev => [...prev, {
+        role: 'system',
+        content: 'Voice recording stopped. (Demo mode - actual recording requires backend integration)',
+        timestamp: new Date()
+      }]);
+    } else {
+      setIsRecording(true);
+      // Start recording logic here
+      setMessages(prev => [...prev, {
+        role: 'system',
+        content: 'Voice recording started. (Demo mode - actual recording requires backend integration)',
+        timestamp: new Date()
+      }]);
+    }
   };
 
   const formatTime = (date) => {
@@ -63,7 +83,7 @@ const VoiceAssistant = () => {
             <div>
               <h2 className="text-xl font-bold text-white">AI Voice Assistant</h2>
               <p className="text-blue-100 text-sm">
-                {isProcessing ? 'Processing...' : 'Ready to help'}
+                {isProcessing ? 'Processing...' : isRecording ? 'Recording...' : 'Ready to help'}
               </p>
             </div>
           </div>
@@ -88,11 +108,13 @@ const VoiceAssistant = () => {
             <div className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg ${
               message.role === 'user' 
                 ? 'bg-blue-600 text-white' 
-                : 'bg-white text-gray-800 shadow-sm border border-gray-200'
+                : message.role === 'assistant'
+                ? 'bg-white text-gray-800 shadow-sm border border-gray-200'
+                : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
             }`}>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-medium opacity-75">
-                  {message.role === 'user' ? 'You' : 'Assistant'}
+                  {message.role === 'user' ? 'You' : message.role === 'assistant' ? 'Assistant' : 'System'}
                 </span>
                 <span className="text-xs opacity-60">
                   {formatTime(message.timestamp)}
@@ -110,14 +132,16 @@ const VoiceAssistant = () => {
         <form onSubmit={handleTextInput} className="flex space-x-4">
           <button
             type="button"
-            className="flex-shrink-0 w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center hover:bg-blue-200 transition-colors"
-            title="Voice input (demo)"
+            onClick={handleVoiceInput}
+            className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
+              isRecording 
+                ? 'bg-red-500 text-white animate-pulse' 
+                : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+            }`}
+            title={isRecording ? "Stop recording" : "Start voice input"}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-              <line x1="12" y1="19" x2="12" y2="23" />
-              <line x1="8" y1="23" x2="16" y2="23" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
             </svg>
           </button>
           
