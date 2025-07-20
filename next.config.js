@@ -3,13 +3,13 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   output: 'export',
-  distDir: 'out',
   eslint: {
     ignoreDuringBuilds: true,
   },
   images: {
     unoptimized: true,
   },
+  trailingSlash: true,
 }
 
 module.exports = nextConfig
