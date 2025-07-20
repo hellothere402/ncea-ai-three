@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
 import Head from 'next/head';
 import Navigation from '../components/Navigation';
 import Footer from '../components/footer';
@@ -64,7 +65,7 @@ export default function Contact() {
               Get in <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Touch</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8">
-              Found a bug? Need help? Have a feature request? We're here to help improve your voice assistant experience.
+              Found a bug? Need help? Have a feature request? We are here to help improve your voice assistant experience.
             </p>
           </div>
         </section>
@@ -101,7 +102,7 @@ export default function Contact() {
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Feature Requests</h3>
                 <p className="text-gray-600 mb-4">
-                  Have an idea for improvement? We'd love to hear your suggestions for new features.
+                  Have an idea for improvement? We would love to hear your suggestions for new features.
                 </p>
                 <ul className="text-sm text-gray-500 space-y-1">
                   <li>• New voice options</li>
@@ -120,7 +121,7 @@ export default function Contact() {
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">General Support</h3>
                 <p className="text-gray-600 mb-4">
-                  Need help getting started or have questions? We're here to assist you.
+                  Need help getting started or have questions? We are here to assist you.
                 </p>
                 <ul className="text-sm text-gray-500 space-y-1">
                   <li>• Usage questions</li>
@@ -138,7 +139,7 @@ export default function Contact() {
                 
                 {submitStatus === 'success' && (
                   <div className="mb-6 p-4 bg-green-100 border border-green-300 rounded-lg">
-                    <p className="text-green-800">Thank you for your message! We'll get back to you soon.</p>
+                    <p className="text-green-800">Thank you for your message! We will get back to you soon.</p>
                   </div>
                 )}
                 
