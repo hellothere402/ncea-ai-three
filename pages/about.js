@@ -40,7 +40,7 @@ export default function About() {
                 </p>
                 <p className="text-lg text-gray-600 mb-6">
                   By combining cutting-edge speech recognition, natural language processing, and machine learning, 
-                  we're creating an AI companion that understands not just your words, but the intent behind them.
+                  we are creating an AI companion that understands not just your words, but the intent behind them.
                 </p>
                 <div className="flex items-center space-x-4">
                   <div className="flex -space-x-2">
