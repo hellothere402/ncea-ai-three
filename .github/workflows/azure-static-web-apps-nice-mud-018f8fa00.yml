@@ -42,7 +42,7 @@ jobs:
           app_location: "/"
           output_location: "out"
           app_build_command: "chmod +x build.sh && ./build.sh"
-          skip_app_build: true
+          skip_app_build: false
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
