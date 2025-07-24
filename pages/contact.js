@@ -52,14 +52,14 @@ export default function Contact() {
       <Head>
         <title>Contact Support - Bug Reports & Help | VoiceAI</title>
         <meta name="description" content="Need help with the voice assistant? Report bugs, request features, or get technical support. We're here to help improve your AI experience." />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </Head>
 
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="page-container bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <Navigation />
 
         {/* Header Section */}
-        <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+        <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 flex-grow">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
               Get in <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Touch</span>

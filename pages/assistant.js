@@ -17,20 +17,20 @@ export default function Assistant() {
       <Head>
         <title>AI Assistant - Voice-Powered Conversations | VoiceAI</title>
         <meta name="description" content="Interact with our advanced AI assistant using voice commands. Experience real-time speech recognition, natural language processing, and intelligent responses." />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </Head>
 
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="page-container bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <Navigation />
 
         {/* Header Section */}
-        <section className="pt-24 pb-8 px-4 sm:px-6 lg:px-8">
+        <section className="pt-24 pb-8 px-4 sm:px-6 lg:px-8 flex-grow">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               AI Voice <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Assistant</span>
             </h1>
             <p className="text-lg text-gray-600 mb-6">
-              Start a conversation with our h AI assistant. Use your voice or type your messages.
+              Start a conversation with our AI assistant. Use your voice or type your messages.
             </p>
             
             {/* Quick Tips */}

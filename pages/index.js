@@ -10,15 +10,15 @@ export default function Home() {
       <Head>
         <title>Voice Assistant - AI-Powered Conversation</title>
         <meta name="description" content="Experience the future of AI conversation with our advanced voice assistant. Real-time speech recognition, natural language processing, and intelligent responses." />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="page-container bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <Navigation />
 
         {/* Hero Section */}
-        <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+        <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 flex-grow">
           <div className="max-w-7xl mx-auto">
             <div className="text-center">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
