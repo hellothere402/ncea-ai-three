@@ -30,7 +30,7 @@ export default function Assistant() {
               AI Voice <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Assistant</span>
             </h1>
             <p className="text-lg text-gray-600 mb-6">
-              Start a conversation with our AI assistant. Use your voice or type your messages.
+              Start a conversation with our h AI assistant. Use your voice or type your messages.
             </p>
             
             {/* Quick Tips */}
