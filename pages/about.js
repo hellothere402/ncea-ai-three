@@ -16,6 +16,7 @@ export default function About() {
       <div className="page-container bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <Navigation />
 
+        <main className="flex-grow">
         {/* Hero Section */}
         <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 flex-grow">
           <div className="max-w-4xl mx-auto text-center">
@@ -162,6 +163,7 @@ export default function About() {
             </Link>
           </div>
         </section>
+        </main>
 
         <Footer />
       </div>

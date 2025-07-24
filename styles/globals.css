@@ -31,9 +31,14 @@ body {
 
 /* Ensure main content takes up available space */
 .page-container {
-  flex: 1;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+/* Main content area */
+main {
+  flex: 1;
 }
 
 /* Remove default margins and ensure proper spacing */
