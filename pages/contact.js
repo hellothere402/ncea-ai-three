@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Link from 'next/link';
 import Head from 'next/head';
 import Navigation from '../components/Navigation';
 import Footer from '../components/footer';
@@ -28,7 +27,7 @@ export default function Contact() {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
+    
     try {
       await new Promise(resolve => setTimeout(resolve, 2000));
       setSubmitStatus('success');
