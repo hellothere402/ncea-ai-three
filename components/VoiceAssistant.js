@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import api from '../services/api';
 
 const VoiceAssistant = () => {
   const [messages, setMessages] = useState([
@@ -12,12 +13,38 @@ const VoiceAssistant = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [hasVoiceProfile, setHasVoiceProfile] = useState(false);
+  
   const messagesEndRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+
+  // Check for voice profile on mount
+  useEffect(() => {
+    checkVoiceProfile();
+  }, []);
 
   // Auto-scroll to bottom when messages update
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const checkVoiceProfile = async () => {
+    try {
+      const result = await api.checkProfile();
+      setHasVoiceProfile(result.hasProfile);
+      
+      if (!result.hasProfile) {
+        setMessages(prev => [...prev, {
+          role: 'system',
+          content: 'No voice profile detected. Please create one by recording a sample of your voice.',
+          timestamp: new Date()
+        }]);
+      }
+    } catch (error) {
+      console.error('Error checking voice profile:', error);
+    }
+  };
 
   const handleTextInput = async (e) => {
     e.preventDefault();
@@ -33,35 +60,136 @@ const VoiceAssistant = () => {
     setInputText('');
     setIsProcessing(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      const response = await api.processText(inputText);
+      
       const aiResponse = {
         role: 'assistant',
-        content: `I received your message: "${userMessage.content}". This is a demo response. The full voice features will be available when connected to the backend API.`,
+        content: response.text,
         timestamp: new Date()
       };
+      
       setMessages(prev => [...prev, aiResponse]);
+      
+      // Play audio if available
+      if (response.audio) {
+        api.playAudioFromBase64(response.audio);
+      }
+    } catch (error) {
+      setMessages(prev => [...prev, {
+        role: 'system',
+        content: 'Error: Could not connect to the AI service. Please ensure the backend is running.',
+        timestamp: new Date()
+      }]);
+    } finally {
       setIsProcessing(false);
-    }, 1000);
+    }
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // Create MediaRecorder with WAV format support
+      const options = { mimeType: 'audio/webm' };
+      mediaRecorderRef.current = new MediaRecorder(stream, options);
+      audioChunksRef.current = [];
+
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        audioChunksRef.current.push(event.data);
+      };
+
+      mediaRecorderRef.current.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        await processAudioRecording(audioBlob);
+        
+        // Stop all tracks
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+      
+      setMessages(prev => [...prev, {
+        role: 'system',
+        content: 'Listening... Click the microphone again to stop.',
+        timestamp: new Date()
+      }]);
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      setMessages(prev => [...prev, {
+        role: 'system',
+        content: 'Error: Could not access microphone. Please check permissions.',
+        timestamp: new Date()
+      }]);
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const processAudioRecording = async (audioBlob) => {
+    setIsProcessing(true);
+    
+    try {
+      // If no voice profile, create one first
+      if (!hasVoiceProfile) {
+        const profileResult = await api.createProfile(audioBlob, 'User');
+        if (profileResult.success) {
+          setHasVoiceProfile(true);
+          setMessages(prev => [...prev, {
+            role: 'system',
+            content: 'Voice profile created successfully! You can now use voice commands.',
+            timestamp: new Date()
+          }]);
+        }
+        return;
+      }
+
+      // Process voice command
+      const response = await api.processVoice(audioBlob);
+      
+      if (response.userSpeech) {
+        setMessages(prev => [...prev, {
+          role: 'user',
+          content: response.userSpeech,
+          timestamp: new Date()
+        }]);
+      }
+
+      if (response.response && response.response.text) {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: response.response.text,
+          timestamp: new Date()
+        }]);
+        
+        // Play audio response if available
+        if (response.audio) {
+          api.playAudioFromBase64(response.audio);
+        }
+      }
+    } catch (error) {
+      console.error('Error processing audio:', error);
+      setMessages(prev => [...prev, {
+        role: 'system',
+        content: 'Error: Could not process audio. Please try again.',
+        timestamp: new Date()
+      }]);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleVoiceInput = () => {
     if (isRecording) {
-      setIsRecording(false);
-      // Stop recording logic here
-      setMessages(prev => [...prev, {
-        role: 'system',
-        content: 'Voice recording stopped. (Demo mode - actual recording requires backend integration)',
-        timestamp: new Date()
-      }]);
+      stopRecording();
     } else {
-      setIsRecording(true);
-      // Start recording logic here
-      setMessages(prev => [...prev, {
-        role: 'system',
-        content: 'Voice recording started. (Demo mode - actual recording requires backend integration)',
-        timestamp: new Date()
-      }]);
+      startRecording();
     }
   };
 
@@ -88,16 +216,23 @@ const VoiceAssistant = () => {
             </div>
           </div>
           
-          <button
-            onClick={() => setShowSettings(!showSettings)}
-            className="p-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
-            title="Settings"
-          >
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </button>
+          <div className="flex items-center space-x-2">
+            {!hasVoiceProfile && (
+              <span className="text-xs bg-yellow-500 text-white px-2 py-1 rounded">
+                No Voice Profile
+              </span>
+            )}
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className="p-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
+              title="Settings"
+            >
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -133,10 +268,11 @@ const VoiceAssistant = () => {
           <button
             type="button"
             onClick={handleVoiceInput}
+            disabled={isProcessing}
             className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
               isRecording 
                 ? 'bg-red-500 text-white animate-pulse' 
-                : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                : 'bg-blue-100 text-blue-600 hover:bg-blue-200 disabled:bg-gray-300'
             }`}
             title={isRecording ? "Stop recording" : "Start voice input"}
           >
@@ -150,13 +286,13 @@ const VoiceAssistant = () => {
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Type your message..."
-            disabled={isProcessing}
+            disabled={isProcessing || isRecording}
             className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           />
           
           <button 
             type="submit"
-            disabled={!inputText.trim() || isProcessing}
+            disabled={!inputText.trim() || isProcessing || isRecording}
             className="flex-shrink-0 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors flex items-center"
           >
             {isProcessing ? (
@@ -190,26 +326,26 @@ const VoiceAssistant = () => {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Assistant Voice
+                    Voice Profile Status
                   </label>
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option>Nova (Female, Warm)</option>
-                    <option>Alloy (Neutral)</option>
-                    <option>Echo (Male, Clear)</option>
-                  </select>
+                  <p className="text-sm text-gray-600">
+                    {hasVoiceProfile ? '✅ Voice profile active' : '⚠️ No voice profile - record audio to create one'}
+                  </p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Backend Status
+                  </label>
+                  <p className="text-sm text-gray-600">
+                    API URL: {process.env.NEXT_PUBLIC_API_URL || 'https://assistant-api-yuwx.onrender.com'}
+                  </p>
                 </div>
                 
                 <div className="flex items-center">
                   <input type="checkbox" id="voice-recognition" className="mr-2" defaultChecked />
                   <label htmlFor="voice-recognition" className="text-sm text-gray-700">
                     Enable voice recognition
-                  </label>
-                </div>
-                
-                <div className="flex items-center">
-                  <input type="checkbox" id="save-conversations" className="mr-2" defaultChecked />
-                  <label htmlFor="save-conversations" className="text-sm text-gray-700">
-                    Save conversations
                   </label>
                 </div>
               </div>
@@ -220,13 +356,7 @@ const VoiceAssistant = () => {
                 onClick={() => setShowSettings(false)}
                 className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
               >
-                Cancel
-              </button>
-              <button
-                onClick={() => setShowSettings(false)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-              >
-                Save
+                Close
               </button>
             </div>
           </div>
